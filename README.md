@@ -26,6 +26,10 @@
 
 ## Roadmap
 
+- [x] 2025/05
+
+    - [x] add cosyvoice 2.0 vllm support
+
 - [x] 2024/12
 
     - [x] 25hz cosyvoice 2.0 released
@@ -126,7 +130,7 @@ import torchaudio
 
 #### CosyVoice2 Usage
 ```python
-cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, fp16=False)
+cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False)
 
 # NOTE if you want to reproduce the results on https://funaudiollm.github.io/cosyvoice2, please add text_frontend=False during inference
 # zero_shot usage
@@ -157,6 +161,18 @@ def text_generator():
     yield '笑容如花儿般绽放。'
 for i, j in enumerate(cosyvoice.inference_zero_shot(text_generator(), '希望你以后能够做的比我还好呦。', prompt_speech_16k, stream=False)):
     torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
+```
+
+#### CosyVoice2 vllm Usage
+If you want to use vllm for inference, please install `vllm==v0.9.0`. Older vllm version do not support CosyVoice2 inference.
+
+Notice that `vllm==v0.9.0` has a lot of specific requirements, for example `torch==2.7.0`. You can create a new env to in case your hardward do not support vllm and old env is corrupted.
+
+``` sh
+conda create -n cosyvoice_vllm --clone cosyvoice
+pip install vllm==v0.9.0 -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
+conda activate cosyvoice_vllm
+python vllm_example.py
 ```
 
 #### CosyVoice Usage
