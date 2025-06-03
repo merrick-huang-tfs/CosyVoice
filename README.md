@@ -26,6 +26,10 @@
 
 ## Roadmap
 
+- [x] 2025/05
+
+    - [x] add cosyvoice 2.0 vllm support
+
 - [x] 2024/12
 
     - [x] 25hz cosyvoice 2.0 released
@@ -54,7 +58,7 @@
 - Clone the repo
     ``` sh
     git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
-    # If you failed to clone submodule due to network failures, please run following command until success
+    # If you failed to clone the submodule due to network failures, please run the following command until success
     cd CosyVoice
     git submodule update --init --recursive
     ```
@@ -65,7 +69,7 @@
     ``` sh
     conda create -n cosyvoice -y python=3.10
     conda activate cosyvoice
-    # pynini is required by WeTextProcessing, use conda to install it as it can be executed on all platform.
+    # pynini is required by WeTextProcessing, use conda to install it as it can be executed on all platforms.
     conda install -y -c conda-forge pynini==2.1.5
     pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
     
@@ -100,7 +104,7 @@ git clone https://www.modelscope.cn/iic/CosyVoice-300M-Instruct.git pretrained_m
 git clone https://www.modelscope.cn/iic/CosyVoice-ttsfrd.git pretrained_models/CosyVoice-ttsfrd
 ```
 
-Optionally, you can unzip `ttsfrd` resouce and install `ttsfrd` package for better text normalization performance.
+Optionally, you can unzip `ttsfrd` resource and install `ttsfrd` package for better text normalization performance.
 
 Notice that this step is not necessary. If you do not install `ttsfrd` package, we will use WeTextProcessing by default.
 
@@ -114,7 +118,7 @@ pip install ttsfrd-0.4.2-cp310-cp310-linux_x86_64.whl
 ### Basic Usage
 
 We strongly recommend using `CosyVoice2-0.5B` for better performance.
-Follow code below for detailed usage of each model.
+Follow the code below for detailed usage of each model.
 
 ``` python
 import sys
@@ -126,7 +130,7 @@ import torchaudio
 
 #### CosyVoice2 Usage
 ```python
-cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, fp16=False)
+cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False)
 
 # NOTE if you want to reproduce the results on https://funaudiollm.github.io/cosyvoice2, please add text_frontend=False during inference
 # zero_shot usage
@@ -157,6 +161,18 @@ def text_generator():
     yield '笑容如花儿般绽放。'
 for i, j in enumerate(cosyvoice.inference_zero_shot(text_generator(), '希望你以后能够做的比我还好呦。', prompt_speech_16k, stream=False)):
     torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
+```
+
+#### CosyVoice2 vllm Usage
+If you want to use vllm for inference, please install `vllm==v0.9.0`. Older vllm version do not support CosyVoice2 inference.
+
+Notice that `vllm==v0.9.0` has a lot of specific requirements, for example `torch==2.7.0`. You can create a new env to in case your hardward do not support vllm and old env is corrupted.
+
+``` sh
+conda create -n cosyvoice_vllm --clone cosyvoice
+pip install vllm==v0.9.0 -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
+conda activate cosyvoice_vllm
+python vllm_example.py
 ```
 
 #### CosyVoice Usage
@@ -202,12 +218,12 @@ python3 webui.py --port 50000 --model_dir pretrained_models/CosyVoice-300M
 
 #### Advanced Usage
 
-For advanced user, we have provided train and inference scripts in `examples/libritts/cosyvoice/run.sh`.
+For advanced users, we have provided training and inference scripts in `examples/libritts/cosyvoice/run.sh`.
 
 #### Build for deployment
 
 Optionally, if you want service deployment,
-you can run following steps.
+You can run the following steps.
 
 ``` sh
 cd runtime/python
